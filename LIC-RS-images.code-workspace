@@ -1,7 +1,6 @@
 {
-	"folders": [
-		{
-			"path": "."
-		}
-	]
+  "folders": [{ "path": "." }],
+  "settings": {
+    "latex-workshop.latex.outDir": "%WORKSPACE_FOLDER%/LatexReport/outputs"
+  }
 }

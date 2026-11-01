@@ -1,0 +1,6 @@
+{
+  "folders": [{ "path": "." }],
+  "settings": {
+    "latex-workshop.latex.outDir": "%DIR%/outputs"
+  }
+}
