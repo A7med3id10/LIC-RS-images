@@ -13,3 +13,16 @@ torch-geometric==2.5.3
 pytorch-msssim==1.0.0
 tqdm==4.66.4
 typing-extensions==4.12.2
+
+# LaTeX tooling used for VS Code authoring and compilation
+# Install a local TeX distribution such as:
+#   - MiKTeX (Windows)
+#   - TeX Live (Linux/macOS)
+# Common supporting tools:
+#   - latexmk
+#   - chktex
+#   - lacheck
+# VS Code extensions:
+#   - LaTeX Workshop
+#   - LTeX (optional grammar support)
+# Note: these are system tools and editor extensions, not Python packages.
