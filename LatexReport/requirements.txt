@@ -1,0 +1,15 @@
+# Recommended interpreter: Python 3.10
+# Pinned project runtime and evaluation-script dependencies.
+compressai==1.2.6
+torch==2.2.2
+torchvision==0.17.2
+numpy==1.26.4
+Pillow==10.4.0
+matplotlib==3.8.4
+einops==0.8.0
+pandas==2.2.2
+scipy==1.13.1
+torch-geometric==2.5.3
+pytorch-msssim==1.0.0
+tqdm==4.66.4
+typing-extensions==4.12.2
