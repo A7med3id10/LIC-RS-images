@@ -115,34 +115,34 @@ Other domain-specific approaches, such as map-assisted compression proposed by Y
 Unlike these methods, our current work establishes a rigorous benchmark of a lightweight learned codec against JPEG2000 on the UC Merced dataset. 
 In future stages, we will modify the \texttt{mbt2018\_mean} baseline by replacing its standard convolutional layers in the encoder and decoder with Depthwise Separable Convolutions to reduce the parameter count and MACs. Additionally, we will integrate a lightweight channel-wise context model inspired by VMIC into its entropy module. This dual approach aims to balance superior compression efficiency with the strict computational limits of edge hardware, avoiding the heavy spatial autoregressive bottleneck.
 
+%------------------------------------------------------------------
+\section{Dataset and Data Pipeline}
+%------------------------------------------------------------------
+\subsection{UC Merced Land Use}
+We use the UC Merced Land Use dataset: 2{,}100 RGB aerial images of $256\times256$ pixels (about 317~MB), organised in 21 land-use classes with 100 images per class. The folder layout expected by the pipeline is \texttt{root/<class>/<image>.tif}.
 
-\section{Dataset \& Baseline Plan}
-\label{sec:data}
-We use the public UC Merced Land Use dataset, which consists of 2,100 aerial images of 256$\times$256 pixels across 21 classes. For our evaluation, we will use a fixed random sample of 100 images (seed 0) to ensure reproducibility. The dataset is publicly available for research purposes. 
+\subsection{Sanity Check}
+Before splitting, every file is opened and fully decoded to detect corrupt files (the script aborts on the first corrupt file). It also counts images whose size differs from $256\times256$ or whose mode is not RGB, so that these can be normalised to the expected format. Number of such images found: \tbd.
 
-The classical baseline is JPEG2000 (OpenJPEG implementation via Pillow), which is the incumbent standard in many remote-sensing pipelines. We will match the bitrate (bpp) of the learned model to JPEG2000 to ensure a fair rate--distortion comparison.
+\subsection{Seeded, Class-Stratified Split}
+For each class independently, file names are sorted, shuffled with a fixed seed (\texttt{random.Random(42)}), and divided into 10\% test, 10\% validation and the remaining 80\% training. With 100 images per class this gives 10/10/80 images per class:
 
-\begin{table}[htbp]
+\begin{table}[h]
 \centering
-\small
-\caption{Dataset summary.}
-\label{tab:data}
-\resizebox{\textwidth}{!}{%
-\begin{tabular}{@{}lll@{}}
+\begin{tabular}{lrr}
 \toprule
-\textbf{Dataset} & \textbf{Subset used} & \textbf{Link} \\
+Split & Images per class & Total images \\
 \midrule
-UC Merced Land Use & 100 images (fixed seed 0) & \url{https://www.kaggle.com/datasets/nguyenquangnhat2100/ucmerced-landuse-dataset} \\
+Train & 80 & 1680 \\
+Validation & 10 & 210 \\
+Test & 10 & 210 \\
 \bottomrule
-\end{tabular}%
-}
+\end{tabular}
+\caption{Split sizes (seed 42). The split files \texttt{train.csv}, \texttt{val.csv}, \texttt{test.csv} and \texttt{split\_info.json} are committed to the repository so Students~B and~C use identical data.}
 \end{table}
 
-The Kaggle-hosted copy identifies its license as CC0 1.0 Public Domain
-\citep{ucmercedkaggle}. This is the license declared for that mirror; because
-the mirror's declaration does not by itself establish the rights to every
-upstream image, we will use the data for this research project and will not
-redistribute the image files.
+All baseline numbers are computed on the \textbf{test} split only.
+
 
 
 

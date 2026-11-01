@@ -1,0 +1,6 @@
+{
+  "seed": 42,
+  "val_frac": 0.1,
+  "test_frac": 0.1,
+  "n_classes": 21
+}
