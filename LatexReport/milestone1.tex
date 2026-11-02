@@ -37,6 +37,11 @@
 \sloppy
 \maketitle
 
+\begin{center}
+\small\textbf{Project repository: }
+\url{https://github.com/A7med3id10/LIC-RS-images}
+\end{center}
+
 \begin{abstract}
 {
 Transmitting high-resolution remote-sensing imagery over bandwidth-constrained 
@@ -117,18 +122,20 @@ In future stages, we will modify the \texttt{mbt2018\_mean} baseline by replacin
 
 %------------------------------------------------------------------
 \section{Dataset and Data Pipeline}
-%------------------------------------------------------------------
+\label{sec:data}
 \subsection{UC Merced Land Use}
 We use the UC Merced Land Use dataset: 2{,}100 RGB aerial images of $256\times256$ pixels (about 317~MB), organised in 21 land-use classes with 100 images per class. The folder layout expected by the pipeline is \texttt{root/<class>/<image>.tif}.
 
 \subsection{Sanity Check}
-Before splitting, every file is opened and fully decoded to detect corrupt files (the script aborts on the first corrupt file). It also counts images whose size differs from $256\times256$ or whose mode is not RGB, so that these can be normalised to the expected format. Number of such images found: \tbd.
+Before splitting, every file is opened and fully decoded to detect corrupt files (the script aborts on the first corrupt file). It also counts images whose size differs from $256\times256$ or whose mode is not RGB, so that these can be normalised to the expected format. 
+%Number of such images found: \tbd.
 
 \subsection{Seeded, Class-Stratified Split}
 For each class independently, file names are sorted, shuffled with a fixed seed (\texttt{random.Random(42)}), and divided into 10\% test, 10\% validation and the remaining 80\% training. With 100 images per class this gives 10/10/80 images per class:
 
 \begin{table}[h]
 \centering
+\caption{Split sizes (seed 42). The split files \texttt{train.csv}, \texttt{val.csv}, \texttt{test.csv} and \texttt{split\_info.json} are committed to the repository so Students~B and~C use identical data.}
 \begin{tabular}{lrr}
 \toprule
 Split & Images per class & Total images \\
@@ -138,7 +145,6 @@ Validation & 10 & 210 \\
 Test & 10 & 210 \\
 \bottomrule
 \end{tabular}
-\caption{Split sizes (seed 42). The split files \texttt{train.csv}, \texttt{val.csv}, \texttt{test.csv} and \texttt{split\_info.json} are committed to the repository so Students~B and~C use identical data.}
 \end{table}
 
 All baseline numbers are computed on the \textbf{test} split only.
@@ -183,7 +189,7 @@ We expect this modified architecture to maintain competitive rate-distortion per
 The project is CPU-OK and its minimum viable comparison requires no model
 training: we evaluate CompressAI's pretrained \texttt{mbt2018\_mean} at quality
 levels 1--8 against JPEG2000. We have already run this pipeline on a pilot
-subset of 20 UC Merced images selected with random seed 0. This 20-image
+subset of 20 UC Merced images selected with random seed 42. This 20-image
 comparison is the MVP; expanding the evaluation to 100 images from the same
 seeded selection is the next step if it fits the compute budget. We budget up
 to one working day for the 100-image evaluation on an 8-core CPU with 16 GB
