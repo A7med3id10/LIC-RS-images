@@ -6,7 +6,7 @@ This project studies whether a learned image codec can compress aerial imagery m
 
 The baseline comparison uses:
 
-- **Dataset:** UC Merced Land Use aerial images. The project proposal specifies a reproducible sample selected with random seed 0.
+- **Dataset:** UC Merced Land Use aerial images. The project proposal specifies a reproducible sample selected with random seed 42.
 - **Learned codec:** CompressAI's pretrained `mbt2018_mean` Mean-Scale Hyperprior.
 - **Classical codec:** JPEG2000, encoded at rates corresponding to the learned codec.
 - **Metrics:** Actual bitrate in bits per pixel (bpp) and reconstruction PSNR. The proposal also discusses MS-SSIM, runtime, and memory as additional evaluation measures.
