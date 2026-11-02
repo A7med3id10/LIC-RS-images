@@ -1,3 +1,11 @@
+<div align="center">
+  <img src="img/cover.jfif" alt="Satellite codec" width="800">
+  <br>
+  <sub><i>codec</i></sub>
+</div>
+
+<br>
+
 # 🛰️ Learned Image Compression for Remote-Sensing Images
 
 This project studies whether a learned image codec can compress aerial imagery more efficiently than JPEG2000 while preserving reconstruction quality. The intended use case is remote-sensing systems such as small satellites and UAVs, where storage, power, and downlink bandwidth are limited.
