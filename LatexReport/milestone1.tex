@@ -115,18 +115,19 @@ Other domain-specific approaches, such as map-assisted compression proposed by Y
 Unlike these methods, our current work establishes a rigorous benchmark of a lightweight learned codec against JPEG2000 on the UC Merced dataset. 
 In future stages, we will modify the \texttt{mbt2018\_mean} baseline by replacing its standard convolutional layers in the encoder and decoder with Depthwise Separable Convolutions to reduce the parameter count and MACs. Additionally, we will integrate a lightweight channel-wise context model inspired by VMIC into its entropy module. This dual approach aims to balance superior compression efficiency with the strict computational limits of edge hardware, avoiding the heavy spatial autoregressive bottleneck.
 
+
 %------------------------------------------------------------------
 \section{Dataset and Data Pipeline}
 %------------------------------------------------------------------
 \subsection{UC Merced Land Use}
 We use the UC Merced Land Use dataset: 2{,}100 RGB aerial images of $256\times256$ pixels (about 317~MB), organised in 21 land-use classes with 100 images per class. The folder layout expected by the pipeline is \texttt{root/<class>/<image>.tif}.
-
+ 
 \subsection{Sanity Check}
 Before splitting, every file is opened and fully decoded to detect corrupt files (the script aborts on the first corrupt file). It also counts images whose size differs from $256\times256$ or whose mode is not RGB, so that these can be normalised to the expected format. Number of such images found: \tbd.
-
+ 
 \subsection{Seeded, Class-Stratified Split}
 For each class independently, file names are sorted, shuffled with a fixed seed (\texttt{random.Random(42)}), and divided into 10\% test, 10\% validation and the remaining 80\% training. With 100 images per class this gives 10/10/80 images per class:
-
+ 
 \begin{table}[h]
 \centering
 \begin{tabular}{lrr}
@@ -140,8 +141,81 @@ Test & 10 & 210 \\
 \end{tabular}
 \caption{Split sizes (seed 42). The split files \texttt{train.csv}, \texttt{val.csv}, \texttt{test.csv} and \texttt{split\_info.json} are committed to the repository so Students~B and~C use identical data.}
 \end{table}
-
+ 
 All baseline numbers are computed on the \textbf{test} split only.
+ 
+%------------------------------------------------------------------
+\section{Metric Definitions}
+%------------------------------------------------------------------
+These definitions are fixed for all three students.
+ 
+\paragraph{Bits per pixel.} Computed from the real compressed file size, headers included:
+\begin{equation}
+  \mathrm{bpp} = \frac{8 \cdot \text{compressed\_bytes}}{H \cdot W}.
+\end{equation}
+ 
+\paragraph{PSNR.} On 8-bit RGB, per image, then averaged over the test set:
+\begin{equation}
+  \mathrm{PSNR} = 10\log_{10}\frac{255^2}{\mathrm{MSE}}.
+\end{equation}
+ 
+\paragraph{MS-SSIM.} Computed per image with \texttt{pytorch\_msssim} (\texttt{data\_range}=255, 5 scales, $11\times11$ window).
+ 
+\paragraph{MS-SSIM (dB).} Per image, then averaged, using the same transform as the VMIC paper:
+\begin{equation}
+  \mathrm{MS\text{-}SSIM_{dB}} = -10\log_{10}\bigl(1-\mathrm{MS\text{-}SSIM}\bigr).
+\end{equation}
+ 
+%------------------------------------------------------------------
+\section{JPEG2000 Baseline Protocol}
+%------------------------------------------------------------------
+Each test image is encoded and decoded with JPEG2000 using OpenJPEG through Pillow (official wheels include OpenJPEG). Target rates (bpp) are
+\[
+  \{0.25,\ 0.5,\ 0.75,\ 1.0,\ 1.5,\ 2.0\}.
+\]
+Because the codec only approximates a target rate, the \emph{actual} bpp is measured from the encoded byte count and reported alongside the quality metrics. A target bpp is converted to a compression ratio relative to 24~bpp RGB (ratio $=24/\text{bpp}$) and passed to OpenJPEG through Pillow with the following settings:
+\begin{itemize}
+  \item \texttt{quality\_mode="rates"}, \texttt{quality\_layers=[24/bpp]};
+  \item \texttt{irreversible=True} (lossy 9/7 wavelet);
+  \item \texttt{mct=1} (RGB$\to$YCC colour transform);
+  \item \texttt{num\_resolutions=6}.
+\end{itemize}
+Each image is encoded at every target rate, decoded from the in-memory codestream, and compared to the original. Metrics are computed per image and then averaged over the test set. Per-image and per-class results are also saved (\texttt{jp2k\_per\_image.csv}, \texttt{jp2k\_per\_class.csv}) for Milestone~3.
+ 
+\paragraph{Software environment.}
+Python \tbd, Pillow \tbd, NumPy \tbd\ (see \texttt{results/env.json}); PyTorch \tbd, pytorch-msssim \tbd; platform \tbd.
+ 
+ 
+%------------------------------------------------------------------
+\section{Baseline Results}
+%------------------------------------------------------------------
+Table~\ref{tab:jp2k} gives the JPEG2000 reference numbers on the 210-image test split (mean over images).
+ 
+\begin{table}[h]
+\centering
+\begin{tabular}{@{}ccccc@{}}
+\toprule
+Target bpp & Actual bpp & PSNR (dB) & MS-SSIM & MS-SSIM (dB) \\
+\midrule
+0.25 & 0.246 & 27.52 & 0.9255 & 11.65 \\
+0.50 & 0.493 & 30.48 & 0.9615 & 14.64 \\
+0.75 & 0.744 & 32.45 & 0.9752 & 16.65 \\
+1.00 & 0.992 & 33.97 & 0.9820 & 18.14 \\
+1.50 & 1.490 & 36.44 & 0.9894 & 20.58 \\
+2.00 & 1.989 & 38.50 & 0.9931 & 22.56 \\
+\bottomrule
+\end{tabular}
+\caption{JPEG2000 baseline on the UC Merced test split (mean over 210 images).}
+\label{tab:jp2k}
+\end{table}
+ 
+% Uncomment once the RD plot exists (results/rd_jp2k.png):
+% \begin{figure}[h]
+%   \centering
+%   \includegraphics[width=0.8\linewidth]{results/rd_jp2k.png}
+%   \caption{Rate--distortion curve of JPEG2000 (PSNR vs.\ actual bpp).}
+% \end{figure}
+ 
 
 
 
