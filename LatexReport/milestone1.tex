@@ -37,6 +37,11 @@
 \sloppy
 \maketitle
 
+\begin{center}
+\small\textbf{Project repository: }
+\url{https://github.com/A7med3id10/LIC-RS-images}
+\end{center}
+
 \begin{abstract}
 {
 Transmitting high-resolution remote-sensing imagery over bandwidth-constrained 
@@ -118,18 +123,20 @@ In future stages, we will modify the \texttt{mbt2018\_mean} baseline by replacin
 
 %------------------------------------------------------------------
 \section{Dataset and Data Pipeline}
-%------------------------------------------------------------------
+\label{sec:data}
 \subsection{UC Merced Land Use}
 We use the UC Merced Land Use dataset: 2{,}100 RGB aerial images of $256\times256$ pixels (about 317~MB), organised in 21 land-use classes with 100 images per class. The folder layout expected by the pipeline is \texttt{root/<class>/<image>.tif}.
  
 \subsection{Sanity Check}
-Before splitting, every file is opened and fully decoded to detect corrupt files (the script aborts on the first corrupt file). It also counts images whose size differs from $256\times256$ or whose mode is not RGB, so that these can be normalised to the expected format. Number of such images found: \tbd.
- 
+Before splitting, every file is opened and fully decoded to detect corrupt files (the script aborts on the first corrupt file). It also counts images whose size differs from $256\times256$ or whose mode is not RGB, so that these can be normalised to the expected format. 
+%Number of such images found: \tbd.
+
 \subsection{Seeded, Class-Stratified Split}
 For each class independently, file names are sorted, shuffled with a fixed seed (\texttt{random.Random(42)}), and divided into 10\% test, 10\% validation and the remaining 80\% training. With 100 images per class this gives 10/10/80 images per class:
  
 \begin{table}[h]
 \centering
+\caption{Split sizes (seed 42). The split files \texttt{train.csv}, \texttt{val.csv}, \texttt{test.csv} and \texttt{split\_info.json} are committed to the repository so Students~B and~C use identical data.}
 \begin{tabular}{lrr}
 \toprule
 Split & Images per class & Total images \\
@@ -139,7 +146,6 @@ Validation & 10 & 210 \\
 Test & 10 & 210 \\
 \bottomrule
 \end{tabular}
-\caption{Split sizes (seed 42). The split files \texttt{train.csv}, \texttt{val.csv}, \texttt{test.csv} and \texttt{split\_info.json} are committed to the repository so Students~B and~C use identical data.}
 \end{table}
  
 All baseline numbers are computed on the \textbf{test} split only.
@@ -217,7 +223,12 @@ Target bpp & Actual bpp & PSNR (dB) & MS-SSIM & MS-SSIM (dB) \\
 % \end{figure}
  
 
-
+\subsection{Data License}
+The Kaggle-hosted copy identifies its license as CC0 1.0 Public Domain
+\citep{ucmercedkaggle}. This is the license declared for that mirror; because
+the mirror's declaration does not by itself establish the rights to every
+upstream image, we will use the data for this research project and will not
+redistribute the image files.
 
 
 \section{Proposed Method}
@@ -229,6 +240,7 @@ making it significantly faster than the full \texttt{mbt2018} model
 while still achieving competitive rate-distortion performance. 
 However, our measurement of the default CompressAI configuration (quality level 5) indicates approximately 17.5 million parameters 
 which is not optimized for the strict power and memory constraints of edge devices.
+
 Figure~\ref{fig:mean-scale-hyperprior} summarizes the baseline codec's analysis, entropy-coding, and synthesis paths. Given an input image $x$, the analysis transform $g_a$ (the encoder) produces a latent representation $y=g_a(x)$. This representation carries most of the image information, but its values are not equally likely. The codec therefore quantizes $y$ to obtain $\hat{y}$ and entropy-codes it into the main bitstream. At the receiver, arithmetic decoding recovers $\hat{y}$, and the synthesis transform $g_s$ (the decoder) maps it to the reconstructed image $\hat{x}=g_s(\hat{y})$. Quantization makes the representation discrete; entropy coding then assigns shorter codes to more probable values, reducing the number of transmitted bits.
 
 \begin{figure}[htbp]
@@ -238,7 +250,9 @@ Figure~\ref{fig:mean-scale-hyperprior} summarizes the baseline codec's analysis,
     \label{fig:mean-scale-hyperprior}
 \end{figure}
 The hyperprior sends a second, compact bitstream that helps both encoder and decoder estimate the probability distribution of the main latent representation.
-A hyper-analysis transform $h_a$ processes the unquantized latent $y$ to produce a smaller auxiliary representation $z=h_a(y)$. The codec quantizes $z$ to $\hat{z}$ and encodes it separately using a factorized entropy model, giving the hyperprior bitstream. At the receiver, this stream is decoded first; a hyper-synthesis transform $h_s$ maps $\hat{z}$ to entropy parameters $\psi=(\mu,\sigma)$ for the main latent. Here, $\mu$ is the predicted mean and $\sigma$ is the predicted scale (standard deviation). Together they define a Gaussian model, conventionally written $\mathcal{N}(\mu,\sigma^2)$, for the latent values. The encoder and decoder use the same predicted parameters when coding and decoding $\hat{y}$. In the diagram, AE and AD denote arithmetic encoding and arithmetic decoding, respectively, and the dotted arrows show where the predicted probability parameters are used.
+A hyper-analysis transform $h_a$ processes the unquantized latent $y$ to produce a smaller auxiliary representation $z=h_a(y)$. 
+
+The codec quantizes $z$ to $\hat{z}$ and encodes it separately using a factorized entropy model, giving the hyperprior bitstream. At the receiver, this stream is decoded first; a hyper-synthesis transform $h_s$ maps $\hat{z}$ to entropy parameters $\psi=(\mu,\sigma)$ for the main latent. Here, $\mu$ is the predicted mean and $\sigma$ is the predicted scale (standard deviation). Together they define a Gaussian model, conventionally written $\mathcal{N}(\mu,\sigma^2)$, for the latent values. The encoder and decoder use the same predicted parameters when coding and decoding $\hat{y}$. In the diagram, AE and AD denote arithmetic encoding and arithmetic decoding, respectively, and the dotted arrows show where the predicted probability parameters are used.
 
 This two-stream design provides a net benefit: although transmitting the hyperprior $z$ adds a small bitrate cost, it allows the codec to accurately predict the probability distribution of $y$ for the specific input image. This accurate prediction reduces the size of the main bitstream far more than the cost of the side information. Notably, the \texttt{mbt2018\_mean} baseline relies solely on this hyperprior for probability estimation, avoiding any sequential spatial context (unlike the full \texttt{mbt2018} model), which enables fast, parallel decoding.
 
@@ -257,7 +271,7 @@ We expect this modified architecture to maintain competitive rate-distortion per
 The project is CPU-OK and its minimum viable comparison requires no model
 training: we evaluate CompressAI's pretrained \texttt{mbt2018\_mean} at quality
 levels 1--8 against JPEG2000. We have already run this pipeline on a pilot
-subset of 20 UC Merced images selected with random seed 0. This 20-image
+subset of 20 UC Merced images selected with random seed 42. This 20-image
 comparison is the MVP; expanding the evaluation to 100 images from the same
 seeded selection is the next step if it fits the compute budget. We budget up
 to one working day for the 100-image evaluation on an 8-core CPU with 16 GB
