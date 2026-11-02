@@ -151,8 +151,8 @@ Test & 10 & 210 \\
 All baseline numbers are computed on the \textbf{test} split only.
  
 %------------------------------------------------------------------
-\section{Metric Definitions}
-%------------------------------------------------------------------
+\subsection{Metric Definitions}
+
 These definitions are fixed for all three students.
  
 \paragraph{Bits per pixel.} Computed from the real compressed file size, headers included:
@@ -173,7 +173,7 @@ These definitions are fixed for all three students.
 \end{equation}
  
 %------------------------------------------------------------------
-\section{JPEG2000 Baseline Protocol}
+\subsection{JPEG2000 Baseline Protocol}
 %------------------------------------------------------------------
 Each test image is encoded and decoded with JPEG2000 using OpenJPEG through Pillow (official wheels include OpenJPEG). Target rates (bpp) are
 \[
@@ -187,18 +187,16 @@ Because the codec only approximates a target rate, the \emph{actual} bpp is meas
   \item \texttt{num\_resolutions=6}.
 \end{itemize}
 Each image is encoded at every target rate, decoded from the in-memory codestream, and compared to the original. Metrics are computed per image and then averaged over the test set. Per-image and per-class results are also saved (\texttt{jp2k\_per\_image.csv}, \texttt{jp2k\_per\_class.csv}) for Milestone~3.
- 
-\paragraph{Software environment.}
-Python \tbd, Pillow \tbd, NumPy \tbd\ (see \texttt{results/env.json}); PyTorch \tbd, pytorch-msssim \tbd; platform \tbd.
- 
- 
-%------------------------------------------------------------------
-\section{Baseline Results}
+
+
+\subsection{Baseline Results}
 %------------------------------------------------------------------
 Table~\ref{tab:jp2k} gives the JPEG2000 reference numbers on the 210-image test split (mean over images).
  
 \begin{table}[h]
 \centering
+\caption{JPEG2000 baseline on the UC Merced test split (mean over 210 images).}
+\label{tab:jp2k}
 \begin{tabular}{@{}ccccc@{}}
 \toprule
 Target bpp & Actual bpp & PSNR (dB) & MS-SSIM & MS-SSIM (dB) \\
@@ -211,8 +209,6 @@ Target bpp & Actual bpp & PSNR (dB) & MS-SSIM & MS-SSIM (dB) \\
 2.00 & 1.989 & 38.50 & 0.9931 & 22.56 \\
 \bottomrule
 \end{tabular}
-\caption{JPEG2000 baseline on the UC Merced test split (mean over 210 images).}
-\label{tab:jp2k}
 \end{table}
  
 % Uncomment once the RD plot exists (results/rd_jp2k.png):
@@ -311,7 +307,6 @@ While this lightweight extension represents the core objective of our project, w
 
 
 
-
 \section{Risk Assessment}
 \label{sec:risk}
 \begin{itemize}[leftmargin=*]
@@ -319,9 +314,11 @@ While this lightweight extension represents the core objective of our project, w
   \item \textbf{Risk 2:} The 100-image evaluation or lightweight model extension may exceed the laptop-class compute budget, or the modifications may reduce rate--distortion performance. \textbf{Mitigation:} The MVP is the completed 20-image pretrained-baseline comparison and needs no custom training. We will prioritize reporting its bpp, PSNR, sample size, seed, and runtime; the 100-image expansion and proposed model changes are subsequent work. If the extension is infeasible or performs poorly, we will retain the pretrained baseline as the primary result and report the modified model's measured complexity and performance without overstating improvements.
 \end{itemize}
 
+
+
 \section{Work Breakdown}
 \label{sec:workbreakdown}
-\begin{table}[htbp]
+\begin{table}[H]
 \centering
 \small
 \caption{Milestone task allocation and deliverables.}
@@ -353,6 +350,10 @@ Final report, repository, and demo \\
 \end{tabularx}
 \end{table}
 
+
+
+
+\clearpage
 \bibliographystyle{unsrtnat}
 \bibliography{references}
 

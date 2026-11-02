@@ -13,6 +13,19 @@ The baseline comparison uses:
 
 The proposal describes a planned edge-focused extension: replace standard convolutions with depthwise-separable convolutions and add lightweight channel-wise context to the entropy model. These are goals for future implementation; the repository currently contains the baseline evaluation script, not that custom codec.
 
+## 📊 JPEG2000 Baseline Results
+
+The following results are reported for the UC Merced test split (210 images). Values are means over the test images.
+
+| Target bpp | Actual bpp | PSNR (dB) | MS-SSIM | MS-SSIM (dB) |
+|---:|---:|---:|---:|---:|
+| 0.25 | 0.246 | 27.52 | 0.9255 | 11.65 |
+| 0.50 | 0.493 | 30.48 | 0.9615 | 14.64 |
+| 0.75 | 0.744 | 32.45 | 0.9752 | 16.65 |
+| 1.00 | 0.992 | 33.97 | 0.9820 | 18.14 |
+| 1.50 | 1.490 | 36.44 | 0.9894 | 20.58 |
+| 2.00 | 1.989 | 38.50 | 0.9931 | 22.56 |
+
 ## 📌 Current scope and caveats
 
 The proposal reports a pilot comparison on 20 images and treats that as the minimum viable baseline result; expanding to 100 images and implementing the lightweight codec modifications are planned work. The evaluation script expects the dataset locally and downloads pretrained CompressAI model weights as needed. Its results are a baseline comparison, not evidence that the planned custom architecture has been implemented or evaluated.
