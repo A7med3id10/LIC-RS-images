@@ -149,7 +149,12 @@ Test & 10 & 210 \\
 
 All baseline numbers are computed on the \textbf{test} split only.
 
-
+\subsection{Data License}
+The Kaggle-hosted copy identifies its license as CC0 1.0 Public Domain
+\citep{ucmercedkaggle}. This is the license declared for that mirror; because
+the mirror's declaration does not by itself establish the rights to every
+upstream image, we will use the data for this research project and will not
+redistribute the image files.
 
 
 \section{Proposed Method}
@@ -161,6 +166,7 @@ making it significantly faster than the full \texttt{mbt2018} model
 while still achieving competitive rate-distortion performance. 
 However, our measurement of the default CompressAI configuration (quality level 5) indicates approximately 17.5 million parameters 
 which is not optimized for the strict power and memory constraints of edge devices.
+
 Figure~\ref{fig:mean-scale-hyperprior} summarizes the baseline codec's analysis, entropy-coding, and synthesis paths. Given an input image $x$, the analysis transform $g_a$ (the encoder) produces a latent representation $y=g_a(x)$. This representation carries most of the image information, but its values are not equally likely. The codec therefore quantizes $y$ to obtain $\hat{y}$ and entropy-codes it into the main bitstream. At the receiver, arithmetic decoding recovers $\hat{y}$, and the synthesis transform $g_s$ (the decoder) maps it to the reconstructed image $\hat{x}=g_s(\hat{y})$. Quantization makes the representation discrete; entropy coding then assigns shorter codes to more probable values, reducing the number of transmitted bits.
 
 \begin{figure}[htbp]
@@ -170,7 +176,9 @@ Figure~\ref{fig:mean-scale-hyperprior} summarizes the baseline codec's analysis,
     \label{fig:mean-scale-hyperprior}
 \end{figure}
 The hyperprior sends a second, compact bitstream that helps both encoder and decoder estimate the probability distribution of the main latent representation.
-A hyper-analysis transform $h_a$ processes the unquantized latent $y$ to produce a smaller auxiliary representation $z=h_a(y)$. The codec quantizes $z$ to $\hat{z}$ and encodes it separately using a factorized entropy model, giving the hyperprior bitstream. At the receiver, this stream is decoded first; a hyper-synthesis transform $h_s$ maps $\hat{z}$ to entropy parameters $\psi=(\mu,\sigma)$ for the main latent. Here, $\mu$ is the predicted mean and $\sigma$ is the predicted scale (standard deviation). Together they define a Gaussian model, conventionally written $\mathcal{N}(\mu,\sigma^2)$, for the latent values. The encoder and decoder use the same predicted parameters when coding and decoding $\hat{y}$. In the diagram, AE and AD denote arithmetic encoding and arithmetic decoding, respectively, and the dotted arrows show where the predicted probability parameters are used.
+A hyper-analysis transform $h_a$ processes the unquantized latent $y$ to produce a smaller auxiliary representation $z=h_a(y)$. 
+
+The codec quantizes $z$ to $\hat{z}$ and encodes it separately using a factorized entropy model, giving the hyperprior bitstream. At the receiver, this stream is decoded first; a hyper-synthesis transform $h_s$ maps $\hat{z}$ to entropy parameters $\psi=(\mu,\sigma)$ for the main latent. Here, $\mu$ is the predicted mean and $\sigma$ is the predicted scale (standard deviation). Together they define a Gaussian model, conventionally written $\mathcal{N}(\mu,\sigma^2)$, for the latent values. The encoder and decoder use the same predicted parameters when coding and decoding $\hat{y}$. In the diagram, AE and AD denote arithmetic encoding and arithmetic decoding, respectively, and the dotted arrows show where the predicted probability parameters are used.
 
 This two-stream design provides a net benefit: although transmitting the hyperprior $z$ adds a small bitrate cost, it allows the codec to accurately predict the probability distribution of $y$ for the specific input image. This accurate prediction reduces the size of the main bitstream far more than the cost of the side information. Notably, the \texttt{mbt2018\_mean} baseline relies solely on this hyperprior for probability estimation, avoiding any sequential spatial context (unlike the full \texttt{mbt2018} model), which enables fast, parallel decoding.
 
