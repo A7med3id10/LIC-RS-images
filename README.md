@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="img/cover.jfif" alt="Satellite codec" width="800">
+  <img src="img/compression-banner.webp" alt="Satellite codec" width="800">
   <br>
   <sub><i>codec</i></sub>
 </div>
