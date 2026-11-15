@@ -10,6 +10,10 @@
 
 This project studies whether a learned image codec can compress aerial imagery more efficiently than JPEG2000 while preserving reconstruction quality. The intended use case is remote-sensing systems such as small satellites and UAVs, where storage, power, and downlink bandwidth are limited.
 
+## Kaggle Notebook
+
+The public Kaggle notebook at [CSE681LIC](https://www.kaggle.com/code/a7med3id/cse681lic) displays the setup, training, and evaluation cells with their saved outputs. The published run is a five-epoch smoke test, not a final model result; its initial test PSNR was reported as `NaN`.
+
 ## 🔬 Approach
 
 The baseline comparison uses:
